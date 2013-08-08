@@ -37,7 +37,7 @@
 			<?php } ?>
 			<li class="icn_profile"><a href="userinfo.php?user=<?php echo $session->username; ?>">Your Profile</a></li>
 			<?php if($session->overUserlevel(5)) { ?>
-				<li class="icn_security"><a href="#">Security</a></li>
+				<li class="icn_security"><a href="settings.php">Settings</a></li>
 			<?php } ?>
 			<li class="icn_jump_back"><a href="login/process.php">Logout</a></li>
 		</ul>
