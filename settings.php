@@ -61,6 +61,14 @@ else{
 
 
 <body>
+<SCRIPT LANGUAGE="JavaScript">
+<!-- Begin
+function jqCheckAll3( id, pID )
+{
+   $( "#" + pID + " :checkbox").attr('checked', $('#' + id).is(':checked'));
+}
+//  End -->
+</script>
 
 	<header id="header">
 		<hgroup>
@@ -126,7 +134,162 @@ else{
 			</div><!-- end of #tab1 -->
 			
 			<div id="tab2" class="tab_content">
-			
+<?php include('login/include/pagination.php'); ?>
+<br>
+<?php
+if (isset($_POST['orderby'])){
+	$orderby=$_POST['orderby'];
+} else {
+	$orderby = 'username';
+}
+$result = $pagination->paginatePage("10","".TBL_USERS."","$orderby"); 
+echo "<table class=\"tablesorter\" cellspacing=\"0\"> ";
+echo "<thead>
+		<tr>
+			<th>Username</th>
+			<th>User Level</th>
+			<th>E-mail</th>
+			<th>Registered</th>
+			<th>Last Login Time</th>
+		</tr>
+	  </thead>
+	  <tbody>";
+		
+		while ($row = $result->fetch()) {
+		$timestamp = $row['timestamp'];
+		$lastlogin  = date("j M, y, g:i a", $timestamp);
+		$regdate = $row['regdate'];
+		$reg  = date("j M, y, g:i a", $regdate);		
+		echo "<tr><td><a href='".$config['WEB_ROOT']."login/admin/index.php?id=6&usertoedit=".$row['username']."'>".$row['username']."</a></td><td>".$row['userlevel']."</td>"
+		."<td><a href='mailto:".$row['email']."'>".$row['email']."</a></td><td>"
+		.$reg."</td><td>".$lastlogin."</td></tr>";		
+		}
+echo "</tbody>
+      </table>";
+?>
+<br>	
+
+<?php
+$orderby = 'regdate';
+$result = displayAdminActivation($orderby);
+?>
+
+<h4>Accounts awaiting Admin or Email activation</h4>
+<form name='myForm' action='adminprocess.php' method='POST'>
+<table class="tablesorter" cellspacing="0"> 
+<thead>
+	<tr>
+		<th class='sortable'>Username</th><th class='sortable'>User Level</th>
+		<th class='sortable'>Email</th><th class='sortable'>Registered</th><th>
+		<input type="checkbox" id="checkL" onclick="jqCheckAll3(this.id, 'left');"/></th>
+	</tr>
+</thead>
+<tbody>
+
+<?php
+while($row = $result->fetch())
+{
+	$regdate = $row['regdate'];
+	$reg  = date("j M, y, g:i a", $regdate);	
+	echo "<tr><td>".$row['username']."</td><td>".$row['userlevel']."</td><td>"
+	."<a href='mailto:".$row['email']."'>".$row['email']."</a></td><td>".$reg
+	."</td><td><input name='user_name[]' type='checkbox' value='".$row['username']."' />";
+}
+?>
+</tbody>
+</table>
+<input type="hidden" name="activateusers" value="1">
+<input type="submit" value="Activate Selected Users">
+<br>
+</form>
+
+<br>
+
+<h4>Banned Users</h4>
+<?php
+if (isset($_POST['orderby'])){
+	$orderby=$_POST['orderby'];
+} else {
+	$orderby = 'username';
+}
+$result = $pagination->paginatePage("10","".TBL_BANNED_USERS."","$orderby"); 
+?>
+<table class="tablesorter" cellspacing="0"> 
+<thead>
+	<tr>
+		<th class='sortable'>Username</th>
+		<th class='sortable'>Timed Banned</th>
+	</tr>
+</thead>
+<tbody>
+<?php		
+while ($row = $result->fetch()) {
+$timestamp = $row['timestamp'];
+$lastlogin  = date("j M, y, g:i a", $timestamp);		
+echo "<tr><td>".$row['username']."</td>"
+."<td>".$lastlogin."</td></tr>";		
+}
+?>
+</tbody>
+</table>
+<br>
+
+<h4>Delete inactive accounts</h4>
+<form action="adminprocess.php" method="POST">
+<table class="tablesorter" cellspacing="0"> 
+<thead>
+	<tr>
+		<td>Days</td>
+		<td></td>
+	</tr>
+
+</thead>
+<tbody>
+	<tr>
+		<td>
+			<select name="inactdays">
+			<option value="3">3</option>
+			<option value="7">7</option>
+			<option value="14">14</option>
+			<option value="30">30</option>
+			<option value="100">100</option>
+			<option value="365">365</option>
+			</select>
+		</td>
+		<td>
+			<input type="hidden" name="subdelinact" value="1">
+			<input type="submit" value="Delete All Inactive" onclick="return confirm ('Are you sure you want to delete inactive accounts, this cannot be undone?\n\n' + 'Click OK to continue or Cancel to Abort!')">
+		</td>
+	</tr>
+</tbody>
+</table>
+</form>
+
+<h4>Ban User</h4>
+<?php echo $form->error("banuser"); ?>
+<form action="adminprocess.php" method="POST">
+<table class="tablesorter" cellspacing="0"> 
+<thead>
+	<tr>
+		<td>Username</td>
+		<td></td>
+	</tr>
+<tbody>
+	<tr>
+		<td>
+			<input type="text" name="banuser" maxlength="30" value="<?php echo $form->value("banuser"); ?>">
+		</td>
+		<td>
+			<input type="hidden" name="subbanuser" value="1">
+			<input type="submit" value="Ban User">
+		</td>
+	</tr>
+</tbody>
+</table>
+</form>
+
+
+<script type="text/javascript" src="login/admin/tablesort.js"></script>
 
 			</div><!-- end of #tab2 -->
 			
